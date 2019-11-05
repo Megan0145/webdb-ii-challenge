@@ -13,12 +13,29 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", validateCarId, (req, res) => {
+  res.status(200).json(req.car);
+});
+
+router.post("/", validateCar, (req, res) => {
+  cars
+    .insert(req.body)
+    .then(car => {
+      res.status(201).json({ message: "Created successfully", data: car });
+    })
+    .catch(err => {
+      res.status(500).json({ message: `Could not add car: ${err.message}` });
+    });
+});
+
+//custom middleware
+function validateCarId(req, res, next) {
   cars
     .getById(req.params.id)
     .then(car => {
       if (car) {
-        res.status(200).json(car);
+        req.car = car;
+        next();
       } else {
         res
           .status(404)
@@ -30,20 +47,8 @@ router.get("/:id", (req, res) => {
         message: `Could not retrieve car with id of ${req.params.id}: ${err.message}`
       });
     });
-});
+}
 
-router.post("/", validateCar, (req, res) => {
-  cars
-    .insert(req.body)
-    .then(car => {
-      res.status(201).json({ message: "Created successully", data: car });
-    })
-    .catch(err => {
-      res.status(500).json({ message: `Could not add car: ${err.message}` });
-    });
-});
-
-//custom middleware
 function validateCar(req, res, next) {
   if (!Object.keys(req.body).length) {
     res.status(400).json({ message: "Missing car data" });

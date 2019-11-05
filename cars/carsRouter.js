@@ -34,4 +34,14 @@ router.get("/:id", (req, res) => {
     });
 });
 
+router.post("/", (req, res) => {
+    cars.insert(req.body)
+    .then(car => {
+        res.status(201).json({message: "Created successully", data: car})
+    })
+    .catch(err => {
+        res.json(err.message)
+    })
+})
+
 module.exports = router;

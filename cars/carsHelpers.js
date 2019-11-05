@@ -6,7 +6,8 @@ module.exports = {
   insert,
   remove,
   update,
-  getCarSales
+  getCarSales,
+  addCarSale
 };
 
 function get() {
@@ -16,6 +17,11 @@ function get() {
 function getCarSales(id) {
     return db("sales")
     .where('car_id', id)
+}
+
+function addCarSale(sale) {
+    return db("sales")
+    .insert(sale)
 }
 
 function getById(id) {

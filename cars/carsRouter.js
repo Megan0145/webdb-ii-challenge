@@ -17,27 +17,6 @@ router.get("/:id", validateCarId, (req, res) => {
   res.status(200).json(req.car);
 });
 
-router.get("/:id/sales", validateCarId, (req, res) => {
-  cars
-    .getCarSales(req.params.id)
-    .then(sales => {
-      if (sales) {
-        res.status(200).json(cars);
-      } else {
-        res
-          .status(200)
-          .json({ message: "This car doesn't have any sales yet" });
-      }
-    })
-    .catch(err => {
-      res
-        .status(500)
-        .json({
-          message: `Could not retrieve sales for car with id ${req.params.id}: ${err.message}`
-        });
-    });
-});
-
 router.post("/", validateCar, (req, res) => {
   cars
     .insert(req.body)
@@ -80,6 +59,40 @@ router.put("/:id", validateCarId, validateCar, (req, res) => {
     });
 });
 
+//SALES
+router.get("/:id/sales", validateCarId, (req, res) => {
+  cars
+    .getCarSales(req.params.id)
+    .then(sales => {
+      if (sales) {
+        res.status(200).json(sales);
+      } else {
+        res
+          .status(200)
+          .json({ message: "This car doesn't have any sales yet" });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({
+        message: `Could not retrieve sales for car with id ${req.params.id}: ${err.message}`
+      });
+    });
+});
+
+router.post("/:id/sales", validateCarId, validateSale, (req, res) => {
+  cars
+    .addCarSale({ car_id: req.params.id, price: req.body.price })
+    .then(sale => {
+      res.status(201).json({
+        message: "Sale created successfully",
+        sale: { id: sale[0], price: req.body.price, car_id: req.params.id }
+      });
+    })
+    .catch(err => {
+      res.status(500).json({ message: "Could not create sale" + err.message });
+    });
+});
+
 //custom middleware
 function validateCarId(req, res, next) {
   cars
@@ -112,6 +125,14 @@ function validateCar(req, res, next) {
     res.status(400).json({ message: "Missing required mileage field" });
   } else if (!req.body.make) {
     res.status(400).json({ message: "Missing required make field" });
+  } else {
+    next();
+  }
+}
+
+function validateSale(req, res, next) {
+  if (!req.body.price) {
+    res.status(400).json({ message: "Must provide sale price" });
   } else {
     next();
   }

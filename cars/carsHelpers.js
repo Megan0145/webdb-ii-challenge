@@ -12,4 +12,5 @@ function get() {
 function getById(id) {
     return db('cars')
     .where({id})
+    .first()
 }

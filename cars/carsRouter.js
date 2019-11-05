@@ -28,6 +28,41 @@ router.post("/", validateCar, (req, res) => {
     });
 });
 
+router.delete("/:id", validateCarId, (req, res) => {
+  cars
+    .remove(req.params.id)
+    .then(() => {
+      res
+        .status(200)
+        .json({ message: "Car successfully deleted", id: req.params.id });
+    })
+    .catch(err => {
+      res.status(500).json({
+        message: `Something terrible happened trying to delete the car with id of ${req.params.id}: ${err.message}`
+      });
+    });
+});
+
+router.put("/:id", validateCarId, validateCar, (req, res) => {
+  cars
+    .update(req.car.id, req.body)
+    .then(() => {
+      res
+        .status(200)
+        .json({
+          message: `Car with id ${req.car.id} successfully updated`,
+          changes: req.body
+        });
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({
+          message: `Something terrible happened trying to update car with id of ${req.car.id}: ${err.message}`
+        });
+    });
+});
+
 //custom middleware
 function validateCarId(req, res, next) {
   cars

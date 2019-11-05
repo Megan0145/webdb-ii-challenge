@@ -5,11 +5,17 @@ module.exports = {
   getById,
   insert,
   remove,
-  update
+  update,
+  getCarSales
 };
 
 function get() {
   return db("cars");
+}
+
+function getCarSales(id) {
+    return db("sales")
+    .where('car_id', id)
 }
 
 function getById(id) {

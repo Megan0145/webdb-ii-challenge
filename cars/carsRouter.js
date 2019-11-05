@@ -17,6 +17,27 @@ router.get("/:id", validateCarId, (req, res) => {
   res.status(200).json(req.car);
 });
 
+router.get("/:id/sales", validateCarId, (req, res) => {
+  cars
+    .getCarSales(req.params.id)
+    .then(sales => {
+      if (sales) {
+        res.status(200).json(cars);
+      } else {
+        res
+          .status(200)
+          .json({ message: "This car doesn't have any sales yet" });
+      }
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({
+          message: `Could not retrieve sales for car with id ${req.params.id}: ${err.message}`
+        });
+    });
+});
+
 router.post("/", validateCar, (req, res) => {
   cars
     .insert(req.body)
@@ -47,19 +68,15 @@ router.put("/:id", validateCarId, validateCar, (req, res) => {
   cars
     .update(req.car.id, req.body)
     .then(() => {
-      res
-        .status(200)
-        .json({
-          message: `Car with id ${req.car.id} successfully updated`,
-          changes: req.body
-        });
+      res.status(200).json({
+        message: `Car with id ${req.car.id} successfully updated`,
+        changes: req.body
+      });
     })
     .catch(err => {
-      res
-        .status(500)
-        .json({
-          message: `Something terrible happened trying to update car with id of ${req.car.id}: ${err.message}`
-        });
+      res.status(500).json({
+        message: `Something terrible happened trying to update car with id of ${req.car.id}: ${err.message}`
+      });
     });
 });
 
